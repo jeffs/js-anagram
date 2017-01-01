@@ -11,16 +11,6 @@ Anagram.main = function main() {
             .join(''));
     }
 
-    function contains(haystack, needle) {
-        if (haystack.length < needle.length)
-            return false;
-        for (var i = 0; i < needle.length; ++i) {
-            if (haystack.indexOf(needle[i]) === -1)
-                return false;
-        }
-        return true;
-    }
-
     function minus(s, t) {  // s and t must be normalized strings.
         var r = '';
         var i = 0, m = s.length;
