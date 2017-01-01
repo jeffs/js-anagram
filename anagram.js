@@ -1,7 +1,65 @@
-function main() {
+Anagram.main = function main() {
+
+    var words = Anagram.words;
+
+    function normalize(text) {
+        return (text
+            .replace(/[\W0-9_]/g, '')
+            .toLowerCase()
+            .split('')
+            .sort()
+            .join(''));
+    }
+
+    function contains(haystack, needle) {
+        if (haystack.length < needle.length)
+            return false;
+        for (var i = 0; i < needle.length; ++i) {
+            if (haystack.indexOf(needle[i]) === -1)
+                return false;
+        }
+        return true;
+    }
+
+    function minus(s, t) {  // s and t must be normalized strings.
+        var r = '';
+        var i = 0, m = s.length;
+        var j = 0, n = t.length;
+        while (i < m && j < n) {
+            var e = s.indexOf(t[j], i);
+            if (e === -1)
+                return null;
+            r += s.substring(i, e);
+            i = e + 1;
+            ++j;
+        }
+        return j === n ? r + s.substring(i, m) : null;
+    }
 
     function findAnagrams(text) {
-        return [text];  // TODO
+        var memo = {};
+        function imp(s, j) {    // j is an offset into `words`
+            var memoKey = [s, j].toString();
+            if (memo.hasOwnProperty(memoKey))
+                return memo[memoKey];
+            var r = [];
+            if (s !== '' && j !== words.length) {
+                var w = words[j];
+                var d = minus(s, normalize(w));
+                if (d === '') {                     // with word
+                    r.push(w)
+                } else if (d) {
+                    imp(d, j + 1).forEach(function (s) {
+                        r.push(w + ' ' + s);
+                    });
+                }
+                r = r.concat(imp(s, j + 1));        // without word
+            }
+            memo[memoKey] = r;
+            return r;
+        }
+        var s = normalize(text);
+        return s ? imp(s, 0) : [];
     }
 
     var input = document.getElementById('input');
@@ -13,20 +71,37 @@ function main() {
             output.removeChild(output.firstChild);
     }
 
-    function submit() {
+    function setOutput(elem) {
         clearOutput();
+        output.appendChild(elem);
+    }
+
+    function submit() {
+        setOutput(document.createTextNode('...'));
+        window.setTimeout(function () {
         var anagrams = findAnagrams(input.value);
-        for (var i = 0; i < anagrams.length; ++i) {
-            var item = document.createElement('li');
-            item.innerText = anagrams[i];
-            output.appendChild(item);
-        }
+            if (anagrams.length === 0) {
+                var elem = document.createElement('i');
+                elem.style.color = 'black';
+                elem.innerText = "I got nothin'.";
+                setOutput(elem);
+            } else {
+                var list = document.createElement('ul');
+                for (var i = 0; i < anagrams.length; ++i) {
+                    var item = document.createElement('li');
+                    item.innerText = anagrams[i];
+                    list.appendChild(item);
+                }
+                setOutput(list);
+            }
+        }, 0);
     }
 
     button.onclick = submit;
 
     input.onkeypress = function (evt) {
-        if (evt.keyCode === 13) // Proceed only on Enter press.
+        if (evt.keyCode === 13) // if the 'Enter' key was pressed
             submit();
+        return true;
     };
 }
