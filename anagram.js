@@ -1,7 +1,5 @@
 Anagram.main = function main() {
 
-    var words = Anagram.words;
-
     function normalize(text) {
         return (text
             .replace(/[\W0-9_]/g, '')
@@ -10,6 +8,9 @@ Anagram.main = function main() {
             .sort()
             .join(''));
     }
+
+    var words = Anagram.words;
+    var norms = words.map(normalize);
 
     function minus(s, t) {  // s and t must be normalized strings.
         var r = '';
@@ -34,11 +35,11 @@ Anagram.main = function main() {
                 return memo[memoKey];
             var r = [];
             if (s !== '' && j !== words.length) {
-                var w = words[j];
-                var d = minus(s, normalize(w));
+                var d = minus(s, norms[j]);
                 if (d === '') {                     // with word
-                    r.push(w)
+                    r.push(words[j])
                 } else if (d) {
+                    var w = words[j];
                     imp(d, j + 1).forEach(function (s) {
                         r.push(w + ' ' + s);
                     });
@@ -69,7 +70,9 @@ Anagram.main = function main() {
     function submit() {
         setOutput(document.createTextNode('...'));
         window.setTimeout(function () {
-        var anagrams = findAnagrams(input.value);
+            var t = new Date;
+            var anagrams = findAnagrams(input.value);
+            console.log(new Date - t);
             if (anagrams.length === 0) {
                 var elem = document.createElement('i');
                 elem.style.color = 'black';
