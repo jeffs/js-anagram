@@ -70,9 +70,7 @@ Anagram.main = function main() {
     function submit() {
         setOutput(document.createTextNode('...'));
         window.setTimeout(function () {
-            var t = new Date;
             var anagrams = findAnagrams(input.value);
-            console.log(new Date - t);
             if (anagrams.length === 0) {
                 var elem = document.createElement('i');
                 elem.style.color = 'black';
